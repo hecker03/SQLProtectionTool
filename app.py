@@ -1,3 +1,4 @@
+from flask import Flask, render_template
 import mysql.connector
 import openai
 import re
@@ -6,6 +7,7 @@ base_url = "https://api.aimlapi.com/v1"
 api_key = "4e18cfb70cae4c1e8caeecf8fd97ffee"
 openai.api_key = api_key 
 openai.api_base = base_url
+app = Flask(__name__)
 
 def connect_to_database():
     return mysql.connector.connect(
@@ -48,3 +50,8 @@ def get_proglang_by_code(source_code):
     if prompt:
         prompt += "\nWhich language is this?(one-word answer)"
     return get_response(prompt), vulnerable_query
+
+# Home page
+@app.route('/')
+def index():
+    return render_template('index.html')
