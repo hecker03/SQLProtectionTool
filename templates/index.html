@@ -34,8 +34,13 @@
     </style>
 </head>
 <body>
-    <h1>Welcome to the SQL Protection Tool</h1>
-    <p>Enhance your database security by processing your code and retrieving protected queries.</p>
-    <a href="/source">Get Started</a>
+    {% if logged_in %}
+        <p>Hello, {{ username }}!</p>
+        <a href="/source">Get Started</a>
+        <a href="/logout">Logout</a>
+    {% else %}
+        <p>Enhance your database security by processing your code and retrieving protected queries.</p>
+        <a href="/login">Get Started</a>
+    {% endif %}
 </body>
 </html>

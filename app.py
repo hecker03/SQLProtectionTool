@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import mysql.connector
 import openai
 import re
@@ -54,6 +54,8 @@ def get_proglang_by_code(source_code):
 # Home page
 @app.route('/')
 def index():
+    logged_in = session.get('logged_in', False)
+    username = session.get('username') if logged_in else None
     return render_template('index.html')
 
 # Login page
@@ -79,7 +81,9 @@ def login():
             db.close()
 
             if user:
-                return redirect(url_for('home'))  # Redirect to home page on successful login
+                session['logged_in'] = True
+                session['username'] = user['username']
+                return redirect(url_for('/'))  # Redirect to home page on successful login
             else:
                 return jsonify({"error": "Invalid username or password"}), 401
 
@@ -87,6 +91,11 @@ def login():
             return jsonify({"error": str(e)}), 500
 
     return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()  # Clear all session data
+    return redirect(url_for('index'))
 
 # Signup page
 @app.route('/signup', methods=['GET', 'POST'])
@@ -128,6 +137,8 @@ def signup():
 # Source code submission page
 @app.route('/source', methods=['GET', 'POST'])
 def source():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
     if request.method == 'POST':
         source_code = request.form.get('source_code')
         return redirect(url_for('get_protected_query', source_code=source_code))
