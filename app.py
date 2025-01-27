@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import mysql.connector
 import openai
 import re
@@ -55,3 +55,72 @@ def get_proglang_by_code(source_code):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# Login page
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if not username or not password:
+            return jsonify({"error": "Username and password are required"}), 400
+
+        try:
+            # Connect to the database
+            db = connect_to_database()
+            cursor = db.cursor(dictionary=True)
+
+            # Query to check user credentials
+            query = "SELECT * FROM users WHERE username = %s AND password = %s"
+            cursor.execute(query, (username, password))
+            user = cursor.fetchone()
+
+            db.close()
+
+            if user:
+                return redirect(url_for('home'))  # Redirect to home page on successful login
+            else:
+                return jsonify({"error": "Invalid username or password"}), 401
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    return render_template('login.html')
+
+# Signup page
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        # Add signup logic here
+        username = request.form.get('username')
+        password = request.form.get('password')
+        repassword = request.form.get('re-password')
+        email = request.form.get('email')
+
+        if password != repassword :
+            return jsonify({"error": "Password doesn't match"}), 400
+
+        if not username or not password or not email or not repassword:
+            return jsonify({"error": "Username, password, and email are required"}), 400
+
+        try:
+            # Connect to the database
+            db = connect_to_database()
+            cursor = db.cursor()
+
+            # Query to insert new user
+            query = "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)"
+            cursor.execute(query, (username, password, email))
+
+            db.commit()
+            db.close()
+
+            return redirect(url_for('index'))  # Redirect to home page on successful signup
+
+        except mysql.connector.Error as err:
+            return jsonify({"error": f"Database error: {err}"}), 500
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    return render_template('signup.html')
