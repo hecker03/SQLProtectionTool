@@ -124,3 +124,43 @@ def signup():
             return jsonify({"error": str(e)}), 500
 
     return render_template('signup.html')
+
+# Source code submission page
+@app.route('/source', methods=['GET', 'POST'])
+def source():
+    if request.method == 'POST':
+        source_code = request.form.get('source_code')
+        return redirect(url_for('get_protected_query', source_code=source_code))
+    return render_template('source.html')
+
+# Process the source code and provide the protected query
+@app.route('/get_protected_query', methods=['GET', 'POST'])
+def get_protected_query():
+    source_code = request.args.get('source_code', '')
+
+    programming_lang, vulnerable = get_proglang_by_code(source_code)
+
+    if not programming_lang or not vulnerable:
+        return jsonify({"error": "Unable to identify programming language or vulnerable query."}), 400
+
+    try:
+        db = connect_to_database()
+        cursor = db.cursor(dictionary=True)
+
+        query = "SELECT procQuery AS query_template FROM sqlapl WHERE language = %s"
+        cursor.execute(query, (programming_lang,))
+        result = cursor.fetchone()
+
+        db.close()
+
+        if result:
+            return jsonify({
+                "programming_language": programming_lang,
+                "vulnerable_query": vulnerable,
+                "protected_query": result["query_template"]
+            })
+        else:
+            return jsonify({"error": f"No protected query found for language: {programming_lang}"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
