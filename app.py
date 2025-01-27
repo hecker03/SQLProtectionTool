@@ -104,7 +104,7 @@ def signup():
         # Add signup logic here
         username = request.form.get('username')
         password = request.form.get('password')
-        repassword = request.form.get('re-password')
+        repassword = request.form.get('repassword')
         email = request.form.get('email')
 
         if password != repassword :
