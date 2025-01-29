@@ -37,7 +37,7 @@
 </head>
 <body>
     <h1>Submit Your Source Code</h1>
-    <form id="sourceCodeForm" action="/process_code" method="POST">
+    <form id="sourceCodeForm" action="/source" method="POST">
         <div class="form-group">
             <label for="source_code">Paste Your Source Code Below:</label><br>
             <textarea id="source_code" name="source_code" placeholder="Enter your source code here..."></textarea>
@@ -58,29 +58,30 @@
         // Automatically fill the source code in the second form after submission of the first form
         const sourceCodeForm = document.getElementById("sourceCodeForm");
         const protectedSourceCode = document.getElementById("protected_source_code");
-
+    
         sourceCodeForm.addEventListener("submit", (event) => {
             event.preventDefault(); // Prevent form from reloading the page
-
+    
             const sourceCode = document.getElementById("source_code").value;
 
-            // Fill the second form's textarea
-            protectedSourceCode.value = sourceCode;
-
+            
             // Submit the form via Fetch API for processing
             fetch(sourceCodeForm.action, {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams(new FormData(sourceCodeForm))
             })
-                .then((response) => response.text())
+                // protectedSourceCode.value = sourceCode  
+                .then((response) => response.json()) // Expecting JSON with the processed code
                 .then((data) => {
-                    alert("Source Code Processed:\n" + data);
+                    // Fill the second form's textarea with the processed code
+                    protectedSourceCode.value = data.processed_code;
                 })
                 .catch((error) => {
                     console.error("Error:", error);
                 });
         });
-    </script>
+    </script
+    
 </body>
 </html>
