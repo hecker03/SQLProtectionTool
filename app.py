@@ -124,7 +124,7 @@ def get_protected_query(source_code):
             (r"\"%s\"", r"%s"),  # Handle double-quoted '%s'
             (r"\+\s*\w+\s*\+\s*", r"%s")  # Replace string concatenation (e.g., '+ username +')
         ]
-
+        variables=re.search(r"'\{(\w+)\}'", vulnerable_query) #extracting variables from query within curly braces
         secure_query = vulnerable_query
         for pattern, replacement in unsafe_patterns:
             secure_query = re.sub(pattern, replacement, secure_query)
