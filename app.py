@@ -28,7 +28,7 @@ def get_response(usrprompt, model="mistralai/Mistral-7B-Instruct-v0.2"):
             model=model,
             messages=[{"role": "user", "content": usrprompt}],
         )
-        return completion['choices'][0]['message']['content']
+        return completion['choices'][0]['message']['content'] # type: ignore
     except Exception as e:
         return f"An error occurred: {e}"
 
@@ -43,7 +43,7 @@ def get_proglang_by_code(source_code):
     
     for x in res:
         for line in lines:
-            if x.get('line','') in line:
+            if x.get('line','') in line: # type: ignore
                 prompt = line
             else:
                 matches = re.findall(r"SELECT\s+.*?\s+FROM\s+\w+", line)
@@ -75,7 +75,7 @@ def login():
             
             if user:
                 session['logged_in'] = True
-                session['username'] = user['username']
+                session['username'] = user['username'] # type: ignore
                 return redirect(url_for('source'))
             else:
                 return jsonify({"error": "Invalid username or password"}), 401
