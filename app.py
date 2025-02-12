@@ -122,7 +122,7 @@ def get_protected_query(source_code):
             (r"'\{(\w+)\}'", r"%s"),  # Replace '{username}' -> %s
             (r"'\%s'", r"%s"),  # Replace '%s' -> %s
             (r"\"%s\"", r"%s"),  # Handle double-quoted '%s'
-            (r"\+\s*\w+\s*\+\s*", r"%s"), # Replace string concatenation (e.g., '+ username +')
+            (r"\+\s*\w+\s*\+\s*", r"%s"),  # Replace string concatenation (e.g., '+ username +')
             (r"'\$(w+)'", r"?"), #Replace '$username' -> ? (php vulnerability)
         ]
         variables=re.search(r"'\{(\w+)\}'", vulnerable_query) #extracting variables from query within curly braces
